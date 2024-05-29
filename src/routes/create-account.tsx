@@ -12,6 +12,7 @@ import {
   Wrapper,
 } from "../components/auth-components";
 import GithubButton from "../components/github-btn";
+import { errorMessages } from "../components/error-messages";
 
 export default function CreateAccount() {
   const navigate = useNavigate();
@@ -50,7 +51,8 @@ export default function CreateAccount() {
       navigate("/");
     } catch (e) {
       if (e instanceof FirebaseError) {
-        setError(e.message);
+        const errorMessage = errorMessages[e.code] || e.message;
+        setError(errorMessage);
       }
     } finally {
       setIsLoading(false);

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "../firebase";
 import {
   Error,
@@ -12,6 +15,8 @@ import {
   Wrapper,
 } from "../components/auth-components";
 import GithubButton from "../components/github-btn";
+import styled from "styled-components";
+import { errorMessages } from "../components/error-messages";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,6 +50,18 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+  const handleResetPw = async () => {
+    setError("");
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("이메일로 비밀번호 재설정 메일이 발송되었습니다.");
+    } catch (e) {
+      if (e instanceof FirebaseError) {
+        const errorMessage = errorMessages[e.code] || e.message;
+        setError(errorMessage);
+      }
+    }
+  };
   return (
     <Wrapper>
       <Title>Log into IT's</Title>
@@ -71,7 +88,15 @@ export default function Login() {
       <Switcher>
         계정이 없으신가요? <Link to="/create-account">회원가입 하기🚀</Link>
       </Switcher>
+      <ResetPwBtn onClick={handleResetPw}>비밀번호를 잊으셨나요? 🛠️</ResetPwBtn>
       <GithubButton />
     </Wrapper>
   );
 }
+
+const ResetPwBtn = styled.span`
+  margin-top: 10px;
+  color: #1d9bf0;
+  border-bottom: 1px solid #1d9bf0;
+  cursor: pointer;
+`;
