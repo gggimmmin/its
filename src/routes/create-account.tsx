@@ -11,6 +11,7 @@ import {
   Title,
   Wrapper,
 } from "../components/auth-components";
+import GithubButton from "../components/github-btn";
 
 export default function CreateAccount() {
   const navigate = useNavigate();
@@ -92,6 +93,7 @@ export default function CreateAccount() {
       <Switcher>
         이미 회원이신가요? <Link to="/login">로그인 하기🚀</Link>
       </Switcher>
+      <GithubButton />
     </Wrapper>
   );
 }
