@@ -35,10 +35,7 @@ export default function PostUploadForm() {
         userId: user.uid,
       });
       if (file) {
-        const locationRef = ref(
-          storage,
-          `uploads/${user.uid}-${user.displayName}/${doc.id}`
-        );
+        const locationRef = ref(storage, `posts/${user.uid}/${doc.id}`);
         const result = await uploadBytes(locationRef, file);
         const url = await getDownloadURL(result.ref);
         await updateDoc(doc, {
