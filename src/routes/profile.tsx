@@ -1,12 +1,23 @@
 import styled from "styled-components";
-import { auth, storage } from "../firebase";
-import React, { useState } from "react";
+import { auth, db, storage } from "../firebase";
+import React, { useEffect, useState } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
+import { IPost } from "../components/timeline";
+import Post from "../components/post";
 
 export default function Profile() {
   const user = auth.currentUser;
   const [avatar, setAvatar] = useState(user?.photoURL);
+  const [posts, setPosts] = useState<IPost[]>([]);
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
     if (!user) return;
@@ -19,6 +30,23 @@ export default function Profile() {
       await updateProfile(user, { photoURL: avatarUrl });
     }
   };
+  const fetchPosts = async () => {
+    const postQuery = query(
+      collection(db, "posts"),
+      where("userId", "==", user?.uid),
+      orderBy("createdAt", "desc"),
+      limit(25)
+    );
+    const snapshot = await getDocs(postQuery);
+    const posts = snapshot.docs.map((doc) => {
+      const { post, createdAt, userId, username, photo } = doc.data();
+      return { post, createdAt, userId, username, photo, id: doc.id };
+    });
+    setPosts(posts);
+  };
+  useEffect(() => {
+    fetchPosts();
+  }, []);
   return (
     <Wrapper>
       <AvatarUpload htmlFor="avatar">
@@ -46,6 +74,11 @@ export default function Profile() {
         accept="image/*"
       />
       <Name>{user?.displayName ?? "Anonymous"}</Name>
+      <Posts>
+        {posts.map((post) => (
+          <Post key={post.id} {...post} />
+        ))}
+      </Posts>
     </Wrapper>
   );
 }
@@ -82,4 +115,11 @@ const AvatarInput = styled.input`
 
 const Name = styled.span`
   font-size: 22px;
+`;
+
+const Posts = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 10px;
 `;
