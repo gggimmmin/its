@@ -16,7 +16,7 @@ export default function GithubButton() {
   };
   return (
     <Button onClick={onClick}>
-      <Logo src="/public/github-logo.png" />
+      <Logo src="/github-logo.png" alt="Github Logo" />
       Continue with Github
     </Button>
   );
